@@ -1,6 +1,6 @@
 ### 关键字
 
-CONST VAR procedure begin end odd if then call while read write
+CONST VAR procedure begin end odd if then call while do read write
 
 ### 赋值
 
@@ -15,6 +15,6 @@ CONST VAR procedure begin end odd if then call while read write
 ### 界符
 
 ```txt
-{ } ; , .
+; , . ( )
 ```
 
