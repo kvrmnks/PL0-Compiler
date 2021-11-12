@@ -60,7 +60,6 @@ class LR1Parser:
         for head, bodies in self.G_prime.grammar.items():
             for body in bodies:
                 self.G_indexed.append([head, body])
-
         self.first, self.follow = first_follow(self.G_prime)
         # self.LR1_items(self.G_prime)
         # exit(0)
@@ -79,7 +78,7 @@ class LR1Parser:
         for x in s:
             # print(x, self.first[x])
             ret = ret | self.first[x]
-            if '^' in self.first[x]:
+            if '^' not in self.first[x]:
                 flag = False
                 break
         ret.discard('^')
@@ -134,7 +133,8 @@ class LR1Parser:
 
     def LR1_items(self, G_prime):
         C = [self.LR1_CLOSURE({(G_prime.start, '$'): {('.', G_prime.start[:-1])}})]
-
+        # print(C[0])
+        # exit(0)
         while True:
             item_len = len(C)
 

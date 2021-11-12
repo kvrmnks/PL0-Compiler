@@ -14,7 +14,7 @@ def first_follow(G):
         return set_1_len != len(set_1)
 
     first = {symbol: set() for symbol in G.symbols}
-    first.update((terminal, {terminal}) for terminal in G.terminals)  # first terminal 加入
+    first.update((terminal, {terminal}) for terminal in G.terminals)
     follow = {symbol: set() for symbol in G.nonterminals}
     follow[G.start].add('$')
 
@@ -51,10 +51,8 @@ def first_follow(G):
 
 class SLRParser:
     def __init__(self, G):
-        self.G_prime = Grammar(f"{G.start}' -> {G.start}\n{G.grammar_str}")  # 扩展文法
-        # print(f"{G.start}' -> {G.start}\n{G.grammar_str}")
-        self.max_G_prime_len = len(max(self.G_prime.grammar, key=len))  # 这是啥？
-        # print(self.max_G_prime_len)
+        self.G_prime = Grammar(f"{G.start}' -> {G.start}\n{G.grammar_str}")
+        self.max_G_prime_len = len(max(self.G_prime.grammar, key=len))
         self.G_indexed = []
 
         for head, bodies in self.G_prime.grammar.items():
@@ -62,61 +60,16 @@ class SLRParser:
                 self.G_indexed.append([head, body])
 
         self.first, self.follow = first_follow(self.G_prime)
-        # self.LR1_items(self.G_prime)
-        # exit(0)
         self.C = self.items(self.G_prime)
-
         self.action = list(self.G_prime.terminals) + ['$']
         self.goto = list(self.G_prime.nonterminals - {self.G_prime.start})
         self.parse_table_symbols = self.action + self.goto
         self.parse_table = self.construct_table()
 
-    def construct_follow(self, s: tuple, extra: str) -> set:
-        ret = set()
-        flag = True
-        for x in s:
-            ret = ret | self.first[x]
-            if '^' in self.first[x]:
-                flag = False
-                break
-        ret.discard('^')
-        if flag:
-            ret = ret | set(extra)
-        return ret
-
-    def LR1_CLOSURE(self, dict_of_trans: dict) -> dict:
-        ret = dict_of_trans
-        # (): {()}
-        while True:
-            item_len = len(ret)
-            for head, bodies in dict_of_trans.copy().items():
-                for body in bodies.copy():
-                    if '.' in body[:-1]:
-                        symbol_after_dot = body[body.index('.') + 1]
-                        if symbol_after_dot in self.G_prime.nonterminals:
-                            symbol_need_first_loc = body.index('.') + 2
-                            if symbol_need_first_loc == len(body):
-                                # A -> ... .B
-                                for G_body in self.G_prime.grammar[symbol_after_dot]:
-                                    ret.setdefault((symbol_after_dot, head[1]), set()).add(
-                                        ('.',) if G_body == ('^',) else ('.',) + G_body
-                                    )
-                            else:
-                                # A -> ... .BC
-                                for j in self.construct_follow(body[symbol_need_first_loc:], head[1]):
-                                    for G_body in self.G_prime.grammar[symbol_after_dot]:
-                                        ret.setdefault((symbol_after_dot, j), set()).add(
-                                            ('.',) if G_body == ('^',) else ('.',) + G_body
-                                        )
-            if item_len == len(ret):
-                break
-        return ret
-
     def CLOSURE(self, I):
         J = I
 
         while True:
-            # print(I)
             item_len = len(J)
 
             for head, bodies in J.copy().items():
@@ -131,20 +84,6 @@ class SLRParser:
 
             if item_len == len(J):
                 return J
-
-    def LR1_GOTO(self, state: dict, c: str) -> dict:
-        goto = {}
-        for head, bodies in state.items():
-            for body in bodies:
-                if '.' in body[:-1]:
-                    dot_pos = body.index('.')
-                    if body[dot_pos + 1] == c:
-                        replaced_dot_body = body[:dot_pos] + (c, '.') + body[dot_pos + 2:]
-                        for C_head, C_bodies in self.LR1_CLOSURE({head: {replaced_dot_body}}).items():
-                            # print(got)
-                            goto.setdefault(C_head, set()).update(C_bodies)
-        # print(goto)
-        return goto
 
     def GOTO(self, I, X):
         goto = {}
@@ -162,27 +101,7 @@ class SLRParser:
 
         return goto
 
-    def LR1_items(self, G_prime):
-        C = [self.LR1_CLOSURE({(G_prime.start, '$'): {('.', G_prime.start[:-1])}})]
-
-        while True:
-            item_len = len(C)
-
-            for I in C.copy():
-                for X in G_prime.symbols:
-                    goto = self.LR1_GOTO(I, X)
-                    # if len(goto) != 0:
-                    #     print(goto)
-                    if goto and goto not in C:
-                        C.append(goto)
-
-            if item_len == len(C):
-                # print(C)
-                return C
-
     def items(self, G_prime):
-        # LR1_C = [self.]
-        print({G_prime.start: {('.', G_prime.start[:-1])}})
         C = [self.CLOSURE({G_prime.start: {('.', G_prime.start[:-1])}})]
 
         while True:
@@ -198,54 +117,10 @@ class SLRParser:
             if item_len == len(C):
                 return C
 
-    def LR1_construct_table(self):
-        parse_table = {r: {c: '' for c in self.parse_table_symbols} for r in range(len(self.C))}
-
-        for i, I in enumerate(self.C):
-            print(I)
-            for head, bodies in I.items():
-                for body in bodies:
-                    if '.' in body[:-1]:  # CASE 2 a
-                        symbol_after_dot = body[body.index('.') + 1]
-
-                        if symbol_after_dot in self.G_prime.terminals:
-                            s = f's{self.C.index(self.GOTO(I, symbol_after_dot))}'
-
-                            if s not in parse_table[i][symbol_after_dot]:
-                                if 'r' in parse_table[i][symbol_after_dot]:
-                                    parse_table[i][symbol_after_dot] += '/'
-
-                                parse_table[i][symbol_after_dot] += s
-
-                    elif body[-1] == '.' and head != self.G_prime.start:  # CASE 2 b
-                        for j, (G_head, G_body) in enumerate(self.G_indexed):
-                            if G_head == head[0] and (G_body == body[:-1] or G_body == ('^',) and body == ('.',)):
-                                # for f in self.follow[head]:
-                                #     if parse_table[i][f]:
-                                #         parse_table[i][f] += '/'
-                                #
-                                #     parse_table[i][f] += f'r{j}'
-                                if parse_table[i][head[1]]:
-                                    parse_table[i][head[1]] += '/'
-                                parse_table[i][head[1]] += '/'
-                                break
-
-                    else:  # CASE 2 c
-                        parse_table[i]['$'] = 'acc'
-
-            for A in self.G_prime.nonterminals:  # CASE 3
-                j = self.GOTO(I, A)
-
-                if j in self.C:
-                    parse_table[i][A] = self.C.index(j)
-
-        return parse_table
-
     def construct_table(self):
         parse_table = {r: {c: '' for c in self.parse_table_symbols} for r in range(len(self.C))}
 
         for i, I in enumerate(self.C):
-            print(I)
             for head, bodies in I.items():
                 for body in bodies:
                     if '.' in body[:-1]:  # CASE 2 a
@@ -265,6 +140,7 @@ class SLRParser:
                             if G_head == head and (G_body == body[:-1] or G_body == ('^',) and body == ('.',)):
                                 for f in self.follow[head]:
                                     if parse_table[i][f]:
+                                        print("collision!")
                                         parse_table[i][f] += '/'
 
                                     parse_table[i][f] += f'r{j}'
@@ -291,14 +167,15 @@ class SLRParser:
 
         print(json.dumps(self.parse_table, indent=4))
 
+
         def fprint(text, variable):
             print(f'{text:>12}: {", ".join(variable)}')
 
-        # def print_line():
-        #     print(f'+{("-" * width + "+") * (len(list(self.G_prime.symbols) + ["$"]))}')
-        #
-        # def symbols_width(symbols):
-        #     return (width + 1) * len(symbols) - 1
+        def print_line():
+            print(f'+{("-" * width + "+") * (len(list(self.G_prime.symbols) + ["$"]))}')
+
+        def symbols_width(symbols):
+            return (width + 1) * len(symbols) - 1
 
         print('AUGMENTED GRAMMAR:')
 
@@ -348,46 +225,46 @@ class SLRParser:
         # print_line()
         # print()
 
-    # def generate_automaton(self):
-    #     automaton = Digraph('automaton', node_attr={'shape': 'record'})
-    #
-    #     for i, I in enumerate(self.C):
-    #         I_html = f'<<I>I</I><SUB>{i}</SUB><BR/>'
-    #
-    #         for head, bodies in I.items():
-    #             for body in bodies:
-    #                 I_html += f'<I>{head:>{self.max_G_prime_len}}</I> &#8594;'
-    #
-    #                 for symbol in body:
-    #                     if symbol in self.G_prime.nonterminals:
-    #                         I_html += f' <I>{symbol}</I>'
-    #                     elif symbol in self.G_prime.terminals:
-    #                         I_html += f' <B>{symbol}</B>'
-    #                     else:
-    #                         I_html += f' {symbol}'
-    #
-    #                 I_html += '<BR ALIGN="LEFT"/>'
-    #
-    #         automaton.node(f'I{i}', f'{I_html}>')
-    #
-    #     for r in range(len(self.C)):
-    #         for c in self.parse_table_symbols:
-    #             if isinstance(self.parse_table[r][c], int):
-    #                 automaton.edge(f'I{r}', f'I{self.parse_table[r][c]}', label=f'<<I>{c}</I>>')
-    #
-    #             elif 's' in self.parse_table[r][c]:
-    #                 i = self.parse_table[r][c][self.parse_table[r][c].index('s') + 1:]
-    #
-    #                 if '/' in i:
-    #                     i = i[:i.index('/')]
-    #
-    #                 automaton.edge(f'I{r}', f'I{i}', label=f'<<B>{c}</B>>' if c in self.G_prime.terminals else c)
-    #
-    #             elif self.parse_table[r][c] == 'acc':
-    #                 automaton.node('acc', '<<B>accept</B>>', shape='none')
-    #                 automaton.edge(f'I{r}', 'acc', label='$')
-    #
-    #     automaton.view()
+    def generate_automaton(self):
+        automaton = Digraph('automaton', node_attr={'shape': 'record'})
+
+        for i, I in enumerate(self.C):
+            I_html = f'<<I>I</I><SUB>{i}</SUB><BR/>'
+
+            for head, bodies in I.items():
+                for body in bodies:
+                    I_html += f'<I>{head:>{self.max_G_prime_len}}</I> &#8594;'
+
+                    for symbol in body:
+                        if symbol in self.G_prime.nonterminals:
+                            I_html += f' <I>{symbol}</I>'
+                        elif symbol in self.G_prime.terminals:
+                            I_html += f' <B>{symbol}</B>'
+                        else:
+                            I_html += f' {symbol}'
+
+                    I_html += '<BR ALIGN="LEFT"/>'
+
+            automaton.node(f'I{i}', f'{I_html}>')
+
+        for r in range(len(self.C)):
+            for c in self.parse_table_symbols:
+                if isinstance(self.parse_table[r][c], int):
+                    automaton.edge(f'I{r}', f'I{self.parse_table[r][c]}', label=f'<<I>{c}</I>>')
+
+                elif 's' in self.parse_table[r][c]:
+                    i = self.parse_table[r][c][self.parse_table[r][c].index('s') + 1:]
+
+                    if '/' in i:
+                        i = i[:i.index('/')]
+
+                    automaton.edge(f'I{r}', f'I{i}', label=f'<<B>{c}</B>>' if c in self.G_prime.terminals else c)
+
+                elif self.parse_table[r][c] == 'acc':
+                    automaton.node('acc', '<<B>accept</B>>', shape='none')
+                    automaton.edge(f'I{r}', 'acc', label='$')
+
+        automaton.view()
 
     def LR_parser(self, w):
         buffer = f'{w} $'.split()
@@ -478,7 +355,7 @@ def main():
 
     G = Grammar(open(file).read())
     slr_parser = SLRParser(G)
-    # slr_parser.print_info()
+    slr_parser.print_info()
     # results = slr_parser.LR_parser(args.tokens)
     # slr_parser.print_LR_parser(results)
 
