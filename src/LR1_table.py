@@ -224,6 +224,9 @@ class LR1Parser:
         fprint('NONTERMINALS', self.G_prime.nonterminals)
         fprint('SYMBOLS', self.G_prime.symbols)
 
+    def get_table(self):
+        return self.parse_table
+
 
 def main():
     # parser = argparse.ArgumentParser()

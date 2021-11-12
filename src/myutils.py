@@ -37,8 +37,8 @@ class TokenType(Enum):
     READ = 'read'
     WRITE = 'write'
     # CONST VAR procedure begin end odd if then call while do read write
-    IDENTIFIER = MAGIC + 13  # user defined
-    NUMBER = MAGIC + 14  # just integer number...
+    IDENTIFIER = 'id'  # MAGIC + 13  # user defined
+    NUMBER = 'num' # MAGIC + 14  # just integer number...
 
 
 class Token:
