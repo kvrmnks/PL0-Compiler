@@ -9,8 +9,8 @@ class Syntax:
     def __init__(self, code_path: str, grammar: str):
         self.lexer = Lexer(code_path, "")
         self.grammar = Grammar(grammar)
-        self.parser = LR1Parser(self.grammar)
-        # self.parser = SLRParser(self.grammar)
+        # self.parser = LR1Parser(self.grammar)
+        self.parser = SLRParser(self.grammar)
         print(self.parser.G_indexed)
         self.parsing_table = self.parser.parse_table
         self.state_stack = [0]
@@ -52,5 +52,5 @@ class Syntax:
 
 
 if __name__ == '__main__':
-    s = Syntax("../PL0_code/PL0_code.in", open("./grammar.g").read())
+    s = Syntax("../PL0_code/PL0_code3.in", open("./grammar.g").read())
     s.process()
