@@ -40,6 +40,7 @@ class Syntax:
         else:
             self.state_stack.append(int(cmd))
             self.readable_stack.append(param)
+
     def process(self):
         while self.lexer.has_next():
             t = self.lexer.get_next()
@@ -52,5 +53,5 @@ class Syntax:
 
 
 if __name__ == '__main__':
-    s = Syntax("../PL0_code/PL0_code3.in", open("./grammar.g").read())
+    s = Syntax("../PL0_code/PL0_code.in", open("./grammar.g").read())
     s.process()
