@@ -16,6 +16,7 @@ class TokenType(Enum):
     LESS_OR_EQUAL = '<='  # <=
     GREATER = '>'  # >
     GREATER_OR_EQUAL = '>='  # >=
+    DOLLER = '$'
     # OPERATOR = auto()  # := + - * / = # < <= > >=
     # SYMBLE = auto()  # ; , .
     SEMICOLON = ';'  # ;

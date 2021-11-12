@@ -76,7 +76,10 @@ class Lexer:
         if loc == -1:
             print('error at one side')
             exit(-1)
-        partial_token.token_type = TokenType(CHARACTER_LIST[loc])
+        if s == '.':
+            partial_token.token_type = TokenType('$')
+        else:
+            partial_token.token_type = TokenType(CHARACTER_LIST[loc])
 
     def deal_with_state0(self, partial_token: Token):
         s = self.stream.peak()
