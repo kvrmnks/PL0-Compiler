@@ -76,7 +76,7 @@ class Lexer:
         if loc == -1:
             print('error at one side')
             exit(-1)
-        partial_token.token_type = TokenType(loc)
+        partial_token.token_type = TokenType(CHARACTER_LIST[loc])
 
     def deal_with_state0(self, partial_token: Token):
         s = self.stream.peak()
@@ -123,7 +123,7 @@ class Lexer:
                 partial_token.token_type = TokenType.IDENTIFIER
                 self.stream.push_back(s)
             else:
-                partial_token.token_type = TokenType(MAGIC + loc)  # 14 is magic number !
+                partial_token.token_type = TokenType(KEYWORD_LIST[loc])  # 14 is magic number !
                 self.stream.push_back(s)
 
     def get_next(self) -> Token:

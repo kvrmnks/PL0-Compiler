@@ -5,37 +5,37 @@ MAGIC = 16
 
 @unique
 class TokenType(Enum):
-    ASSIGN = 0  # :=
-    PLUS = 1  # +
-    MINUS = 2  # -
-    TIMES = 3  # *
-    DIVIDE = 4  # /
-    EQUAL = 5  # =
-    NEQUAL = 6  # #
-    LESS = 7  # <
-    LESS_OR_EQUAL = 8  # <=
-    GREATER = 9  # >
-    GREATER_OR_EQUAL = 10  # >=
+    ASSIGN = ':='  # :=
+    PLUS = '+'  # +
+    MINUS = '-'  # -
+    TIMES = '*'  # *
+    DIVIDE = '/'  # /
+    EQUAL = '='  # =
+    NEQUAL = '#'  # #
+    LESS = '<'  # <
+    LESS_OR_EQUAL = '<='  # <=
+    GREATER = '>'  # >
+    GREATER_OR_EQUAL = '>='  # >=
     # OPERATOR = auto()  # := + - * / = # < <= > >=
     # SYMBLE = auto()  # ; , .
-    SEMICOLON = 11  # ;
-    COMMA = 12  # ,
-    DOT = 13  # .
-    LEFT_PARENTHESES = 14  # (
-    RIGHT_PARENTHESES = 15  # )
-    CONST = MAGIC + 0
-    VAR = MAGIC + 1
-    PROCEDURE = MAGIC + 2
-    BEGIN = MAGIC + 3
-    END = MAGIC + 4
-    ODD = MAGIC + 5
-    IF = MAGIC + 6
-    THEN = MAGIC + 7
-    CALL = MAGIC + 8
-    WHILE = MAGIC + 9
-    DO = MAGIC + 10
-    READ = MAGIC + 11
-    WRITE = MAGIC + 12
+    SEMICOLON = ';'  # ;
+    COMMA = ','  # ,
+    DOT = '.'  # .
+    LEFT_PARENTHESES = '('  # (
+    RIGHT_PARENTHESES = ')'  # )
+    CONST = 'const'
+    VAR = 'var'
+    PROCEDURE = 'procedure'
+    BEGIN = 'begin'
+    END = 'end'
+    ODD = 'odd'
+    IF = 'if'
+    THEN = 'then'
+    CALL = 'call'
+    WHILE = 'while'
+    DO = 'do'
+    READ = 'read'
+    WRITE = 'write'
     # CONST VAR procedure begin end odd if then call while do read write
     IDENTIFIER = MAGIC + 13  # user defined
     NUMBER = MAGIC + 14  # just integer number...
