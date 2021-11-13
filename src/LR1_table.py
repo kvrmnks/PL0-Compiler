@@ -67,7 +67,7 @@ class LR1Parser:
 
         self.action = list(self.G_prime.terminals) + ['$']
         self.goto = list(self.G_prime.nonterminals - {self.G_prime.start})
-        print(self.first)
+        # print(self.first)
         self.parse_table_symbols = self.action + self.goto
         self.parse_table = self.LR1_construct_table()
 
