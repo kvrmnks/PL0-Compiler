@@ -238,7 +238,7 @@ def main():
 
     G = Grammar(open(file).read())
     slr_parser = LR1Parser(G)
-    slr_parser.print_info()
+    # slr_parser.print_info()
     # results = slr_parser.LR_parser(args.tokens)
     # slr_parser.print_LR_parser(results)
 

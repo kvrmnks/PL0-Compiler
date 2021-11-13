@@ -174,6 +174,6 @@ if __name__ == "__main__":
     a = Lexer("../PL0_code/PL0_code.in", "")
     while a.has_next():
         t = a.get_next()
-        print(t.token_type,"\t", t.number,"\t", t.identifier)
+        # print(t.token_type,"\t", t.number,"\t", t.identifier)
         if t.token_type is None:
             break
