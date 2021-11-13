@@ -2,42 +2,69 @@ from LR_table import SLRParser
 from LR1_table import LR1Parser
 from lexer import Lexer
 from Grammar import Grammar
-from myutils import Token
+from myutils import Token, TokenType
 from InterRep import InterRep
 
 
 class Syntax:
     def __init__(self, code_path: str, grammar: str):
-        self.inter_rep = InterRep()
+
+        self.inter_rep = InterRep()  # 用于生成中间代码
+        self.inter_rep.add_procedure("_global")
+
         self.lexer = Lexer(code_path, "")
         self.grammar = Grammar(grammar)
-        # self.parser = LR1Parser(self.grammar)
-        self.parser = SLRParser(self.grammar)
+        self.parser = LR1Parser(self.grammar)
+        # self.parser = SLRParser(self.grammar)
         # print(self.parser.G_indexed)
         self.parsing_table = self.parser.parse_table
         self.state_stack = [0]
         self.readable_stack = []
         self.props_stack = []  # 存放各种属性
+        # self.inter_rep
         # print(self.parser.parse_table)
         # for x in self.parser.parse_table.keys():
         #     print(x, self.parser.parse_table[x])
 
     # def subprocess_add_procedure
+    def check_props_stack(self, token_types: list) -> bool:
+        if len(self.props_stack) < len(token_types):
+            print('panic in check props_stack')
+            exit(-1)
+        for (i, x) in enumerate(token_types):
+            if self.props_stack[-(len(token_types) - i)].token_type != x:
+                print('panic in check props_stack')
+                exit(-1)
+        return False
 
-    def process_inter_rep(self, cmd: str, tk: Token):
-        if cmd == 'IDid':
-            pass
-            # print(self.props_stack[-1].identifier)
-            # ID -> id
+    def process_inter_rep(self, cmd: str):
 
-        if cmd == "PROC_HEADprocedureID;":
-            # PROC_HEAD -> procedure ID ;
+        if cmd == "PROC_HEAD procedureID;":
             print("PROC_HEAD -> procedure ID")
-            for x in self.props_stack:
-                print(x.token_type)
-            # print(self.props_stack.token_type)
-        elif cmd == 'IDid':
-            print('parse id', tk)
+            self.check_props_stack([TokenType.PROCEDURE, TokenType.IDENTIFIER, TokenType.SEMICOLON])
+            self.inter_rep.add_procedure(self.props_stack[-2].identifier)
+            self.props_stack = self.props_stack[: -3]
+
+        elif cmd == 'CONST_DEF ID=UINT':
+            print('CONST_DEF -> ID = UINT')
+            self.check_props_stack([TokenType.IDENTIFIER, TokenType.EQUAL, TokenType.NUMBER])
+            print(self.props_stack)
+            self.inter_rep.add_const(self.props_stack[-3].identifier, self.props_stack[-1].number)
+            self.props_stack = self.props_stack[: -3]
+
+        elif cmd == 'VARIABLE_ varID':
+            print('VARIABLE_ -> var ID')
+            self.check_props_stack([TokenType.VAR, TokenType.IDENTIFIER])
+            self.inter_rep.add_var(self.props_stack[-1].identifier)
+            self.props_stack = self.props_stack[: -2]
+            print(self.props_stack)
+
+        elif cmd == 'VARIABLE_ VARIABLE_,ID':
+            print('VARIABLE_ -> VARIABLE_ , ID')
+            self.check_props_stack([TokenType.COMMA, TokenType.IDENTIFIER])
+            self.inter_rep.add_var(self.props_stack[-1].identifier)
+            self.props_stack = self.props_stack[: -2]
+            print(self.props_stack)
 
     def process_one_hop(self, param: str, tk: Token):
         # print(self.parsing_table[self.state_stack[-1]])
@@ -51,14 +78,14 @@ class Syntax:
         elif cmd[0] == 's':
             self.state_stack.append(int(cmd[1:]))
             self.readable_stack.append(param)
-            # self.props_stack.append(tk)
+            self.props_stack.append(tk)
 
         elif cmd[0] == 'r':
             # print(self.parser.G_indexed[int(cmd[1:])])
             tp = self.parser.G_indexed[int(cmd[1:])][1]  # A -> B, tp = B
             lp = self.parser.G_indexed[int(cmd[1:])][0]
-            # print(lp, " ".join(tp))
-            self.process_inter_rep(lp + "".join(tp), tk)
+            # print(lp, "".join(tp))
+            self.process_inter_rep(lp + " " + "".join(tp))
 
             if tp[0] != '^':
                 self.state_stack = self.state_stack[0:len(self.state_stack) - len(tp)]
@@ -89,5 +116,6 @@ class Syntax:
 
 
 if __name__ == '__main__':
-    s = Syntax("../PL0_code/PL0_code.in", open("./grammar.g").read())
+    s = Syntax("../PL0_code/PL0_code0.in", open("./grammar.g").read())
     s.process()
+    print(s.inter_rep)
