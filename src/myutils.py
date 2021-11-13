@@ -39,7 +39,7 @@ class TokenType(Enum):
     WRITE = 'write'
     # CONST VAR procedure begin end odd if then call while do read write
     IDENTIFIER = 'id'  # MAGIC + 13  # user defined
-    NUMBER = 'num' # MAGIC + 14  # just integer number...
+    NUMBER = 'num'  # MAGIC + 14  # just integer number...
 
 
 class Token:
@@ -47,6 +47,12 @@ class Token:
         self.token_type = t
         self.identifier = identifier
         self.number = number
+
+    def __str__(self):
+        return "{type: %s id: %s num: %s}" % (self.token_type, self.identifier, self.number)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 CHARACTER_LIST = [
