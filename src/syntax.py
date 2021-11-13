@@ -57,19 +57,40 @@ class Syntax:
             self.check_props_stack([TokenType.VAR, TokenType.IDENTIFIER])
             self.inter_rep.add_var(self.props_stack[-1].identifier)
             self.props_stack = self.props_stack[: -2]
-            print(self.props_stack)
+            # print(self.props_stack)
 
         elif cmd == 'VARIABLE_ VARIABLE_,ID':
             print('VARIABLE_ -> VARIABLE_ , ID')
             self.check_props_stack([TokenType.COMMA, TokenType.IDENTIFIER])
             self.inter_rep.add_var(self.props_stack[-1].identifier)
             self.props_stack = self.props_stack[: -2]
-            print(self.props_stack)
+            # print(self.props_stack)
+
+        elif cmd == 'FACTOR ID':
+            print('FACTOR -> ID')
+            self.check_props_stack([TokenType.IDENTIFIER])
+            ret = self.inter_rep.find_by_name(self.props_stack[-1].identifier)
+            if ret is None:
+                print('panic in factor -> id')
+                exit(-1)
+            self.props_stack[-1] = Token(TokenType.NUMBER, "", ret[0])
+            # print(self.props_stack)
+        elif cmd == 'FACTOR (EXPR)':
+            print('FACTOR -> ( EXPR )')
+            self.check_props_stack([TokenType.LEFT_PARENTHESES, TokenType.NUMBER, TokenType.RIGHT_PARENTHESES])
+            tmp = self.props_stack[-2]
+            self.props_stack = self.props_stack[:-3]
+            self.props_stack.append(tmp)
+        elif cmd == 'SUBPROG CONSTVARIABLEPROCEDURESTATEMENT':
+            print('SUBPROG -> CONST VARIABLE PROCEDURE STATEMENT')
+            if self.inter_rep.current_procedure.father != "":
+                self.inter_rep.current_procedure = self.inter_rep.procedure_dict[self.inter_rep.current_procedure.father]
+            # print(self.props_stack)
 
     def process_one_hop(self, param: str, tk: Token):
         # print(self.parsing_table[self.state_stack[-1]])
         cmd = str(self.parsing_table[self.state_stack[-1]][param])
-        # print(self.readable_stack, cmd, param)
+        print(self.readable_stack, cmd, param)
         if cmd == '':
             print("No such action!")
             exit(-1)
@@ -104,7 +125,7 @@ class Syntax:
             t = self.lexer.get_next()
             if t.token_type is None:
                 break
-            # print('lexer', t.token_type, t.number, t.identifier)
+            print('lexer', t.token_type, t.number, t.identifier)
             self.process_one_hop(t.token_type.value, t)
 
             # cmd = parsing_table[state_stack[-1]][t.token_type.value]

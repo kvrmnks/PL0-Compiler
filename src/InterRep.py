@@ -50,6 +50,19 @@ class InterRep:
     def add_var(self, name: str):
         self.current_procedure.add_var(name)
 
+    # 按照父亲边寻找变量 or 常量 变量后一位为1 否则为0
+    def find_by_name(self, name: str) -> (int, int):
+        tmp_state = self.current_procedure
+        while True:
+            if name in tmp_state.var_dict:
+                return tmp_state.var_dict[name], 1
+            if name in tmp_state.const_dict:
+                return tmp_state.const_dict[name], 0
+            if tmp_state.father == "":
+                return None
+            else:
+                tmp_state = self.procedure_dict[tmp_state.father]
+
     def __repr__(self):
         return str(dict({
             'procedure_dict': self.procedure_dict,
