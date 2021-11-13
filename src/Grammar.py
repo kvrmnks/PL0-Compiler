@@ -13,7 +13,8 @@ class Grammar:
         self.nonterminals = set()
 
         for production in list(filter(None, grammar_str.splitlines())):
-            head, _, bodies = production.partition(' -> ') # head 箭头前部
+            production, _, _ = production.partition('@')  # 加入注释
+            head, _, bodies = production.partition(' -> ')  # head 箭头前部
             # print(bodies)
             if not head.isupper():
                 raise ValueError \
