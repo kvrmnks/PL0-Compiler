@@ -15,6 +15,7 @@ class Syntax:
         self.lexer = Lexer(code_path, "")
         self.grammar = Grammar(grammar)
         self.parser = LR1Parser(self.grammar)
+        self.global_address_counter = 0 # 记录生成的地址
         # self.parser = SLRParser(self.grammar)
         # print(self.parser.G_indexed)
         self.parsing_table = self.parser.parse_table
@@ -48,7 +49,7 @@ class Syntax:
         elif cmd == 'CONST_DEF ID=UINT':
             print('CONST_DEF -> ID = UINT')
             self.check_props_stack([TokenType.IDENTIFIER, TokenType.EQUAL, TokenType.NUMBER])
-            print(self.props_stack)
+            # print(self.props_stack)
             self.inter_rep.add_const(self.props_stack[-3].identifier, self.props_stack[-1].number)
             self.props_stack = self.props_stack[: -3]
 
@@ -77,20 +78,30 @@ class Syntax:
             # print(self.props_stack)
         elif cmd == 'FACTOR (EXPR)':
             print('FACTOR -> ( EXPR )')
-            self.check_props_stack([TokenType.LEFT_PARENTHESES, TokenType.NUMBER, TokenType.RIGHT_PARENTHESES])
+            self.check_props_stack([TokenType.LEFT_PARENTHESES, TokenType.IDENTIFIER, TokenType.RIGHT_PARENTHESES])
             tmp = self.props_stack[-2]
             self.props_stack = self.props_stack[:-3]
             self.props_stack.append(tmp)
-        elif cmd == 'SUBPROG CONSTVARIABLEPROCEDURESTATEMENT':
-            print('SUBPROG -> CONST VARIABLE PROCEDURE STATEMENT')
+            # print(self.props_stack)
+        elif cmd == 'SUBPROG  CONSTVARIABLEPROCEDUREM_STATEMENTSTATEMENT':
+            print('SUBPROG -> CONST VARIABLE PROCEDURE M_STATEMENT STATEMENT')
             if self.inter_rep.current_procedure.father != "":
                 self.inter_rep.current_procedure = self.inter_rep.procedure_dict[self.inter_rep.current_procedure.father]
             # print(self.props_stack)
+        elif cmd == 'M_STATEMENT ^':
+            print('M_STATEMENT -> ^')
+            volumn = 3 + len(self.inter_rep.current_procedure.var_dict)
+            self.global_address_counter += 3
+            self.global_address_counter += len(self.inter_rep.current_procedure.var_dict)
+            print('int', '0', volumn)
+
+
+
 
     def process_one_hop(self, param: str, tk: Token):
         # print(self.parsing_table[self.state_stack[-1]])
         cmd = str(self.parsing_table[self.state_stack[-1]][param])
-        print(self.readable_stack, cmd, param)
+        # print(self.readable_stack, cmd, param)
         if cmd == '':
             print("No such action!")
             exit(-1)
@@ -125,7 +136,7 @@ class Syntax:
             t = self.lexer.get_next()
             if t.token_type is None:
                 break
-            print('lexer', t.token_type, t.number, t.identifier)
+            # print('lexer', t.token_type, t.number, t.identifier)
             self.process_one_hop(t.token_type.value, t)
 
             # cmd = parsing_table[state_stack[-1]][t.token_type.value]
