@@ -40,8 +40,9 @@ COMP_BEGIN -> begin STATEMENT @ down remain 0
 COMP_BEGIN -> COMP_BEGIN ; STATEMENT @ down remain 0
 
 COND -> if CONDDITION then STATEMENT
-CONDDITION -> EXPR REL EXPR
-CONDDITION -> odd EXPR
+
+CONDDITION -> EXPR REL  EXPR @ down remain 1
+CONDDITION -> addodd EXPR @ down remain 1
 
 EXPR -> PLUS_MINUS ITEM @ down remain 1
 EXPR -> EXPR PLUS_MINUS ITEM @down remain 1

@@ -287,6 +287,32 @@ class Syntax:
                 self.logWriter.write('OPR', 0, 14)
             self.props_stack = self.props_stack[:-2]
 
+    def process_cond_related(self, cmd: str):
+        if cmd == 'COND -> if CONDDITION then STATEMENT':
+            print('COND -> if CONDDITION then STATEMENT')
+            
+        elif cmd == 'CONDDITION -> EXPR REL EXPR':
+            print('CONDDITION -> EXPR REL EXPR')
+            if self.props_stack[-2].token_type == TokenType.EQUAL:
+                self.logWriter.write('OPR', 0, 8)
+            elif self.props_stack[-2].token_type == TokenType.NEQUAL:
+                self.logWriter.write('OPR', 0, 9)
+            elif self.props_stack[-2].token_type == TokenType.LESS:
+                self.logWriter.write('OPR', 0, 10)
+            elif self.props_stack[-2].token_type == TokenType.LESS_OR_EQUAL:
+                self.logWriter.write('OPR', 0, 13)
+            elif self.props_stack[-2].token_type == TokenType.GREATER:
+                self.logWriter.write('OPR', 0, 12)
+            elif self.props_stack[-2].token_type == TokenType.GREATER_OR_EQUAL:
+                self.logWriter.write('OPR', 0, 11)
+            self.props_stack = self.props_stack[:-2]
+
+        elif cmd == 'CONDDITION -> odd EXPR':
+            print('CONDDITION -> odd EXPR')
+            self.logWriter.write('OPR', 0, 6)
+            self.props_stack = self.props_stack[:-1]
+
+
     def process_inter_rep(self, cmd: str):
         print(cmd, self.props_stack)
         # print(cmd)
@@ -344,6 +370,11 @@ class Syntax:
                      'WRITE_BEGIN -> write ( ID',
                      'WRITE_BEGIN -> WRITE_BEGIN , ID']:
             self.process_write_related(cmd)
+
+        elif cmd in ['COND -> if CONDDITION then STATEMENT',
+                     'CONDDITION -> EXPR REL EXPR',
+                     'CONDDITION -> odd EXPR']:
+            self.process_cond_related(cmd)
 
         elif cmd == 'SUBPROG -> CONST VARIABLE PROCEDURE M_STATEMENT STATEMENT':
             print('SUBPROG -> CONST VARIABLE PROCEDURE M_STATEMENT STATEMENT')
