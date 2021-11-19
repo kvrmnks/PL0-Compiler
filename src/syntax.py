@@ -414,11 +414,13 @@ class Syntax:
             if self.inter_rep.current_procedure.father != "":
                 self.inter_rep.current_procedure = self.inter_rep.procedure_dict[
                     self.inter_rep.current_procedure.father]
+            self.logWriter.write('OPR', 0, 0)
             # print(self.props_stack)
         elif cmd == 'M_STATEMENT -> ^':
             print('M_STATEMENT -> ^')
             volumn = 3 + len(self.inter_rep.current_procedure.var_dict)
             self.inter_rep.current_procedure.address = self.logWriter.total_line
+            # self.logWriter.write('')
             self.logWriter.write('int', 0, volumn)
 
     def process_one_hop(self, param: str, tk: Token):
@@ -472,7 +474,7 @@ class Syntax:
 
 
 if __name__ == '__main__':
-    s = Syntax("../PL0_code/PL0_code2.in", open("./grammar.g").read())
+    s = Syntax("../PL0_code/test4.pas", open("./grammar.g").read())
     s.process()
     s.logWriter.flush()
     print(s.inter_rep)
