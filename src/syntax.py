@@ -4,6 +4,7 @@ from lexer import Lexer
 from Grammar import Grammar
 from myutils import Token, TokenType
 from InterRep import InterRep
+from LogWriter import LogWriter
 
 
 class Syntax:
@@ -11,7 +12,7 @@ class Syntax:
 
         self.inter_rep = InterRep()  # 用于生成中间代码
         self.inter_rep.add_procedure("_global", 0)
-
+        self.logWriter = LogWriter('abab.txt')
         self.lexer = Lexer(code_path, "")
         self.grammar = Grammar(grammar)
         self.parser = LR1Parser(self.grammar)
@@ -74,7 +75,14 @@ class Syntax:
             if ret is None:
                 print('panic in factor -> id')
                 exit(-1)
-            self.props_stack[-1] = Token(TokenType.NUMBER, "", ret[0])
+            # print(ret)
+            if ret[2] == 0:
+                # 常量
+                self.logWriter.write('LIT', 0, ret[1])
+            else:
+                # 变量
+                self.logWriter.write("LOD", ret[0], ret[1][1])
+            # self.props_stack[-1] = Token(TokenType.NUMBER, "", ret[0])
             # print(self.props_stack)
         elif cmd == 'FACTOR (EXPR)':
             print('FACTOR -> ( EXPR )')
@@ -93,7 +101,8 @@ class Syntax:
             volumn = 3 + len(self.inter_rep.current_procedure.var_dict)
             self.global_address_counter += 3
             self.global_address_counter += len(self.inter_rep.current_procedure.var_dict)
-            print('int', '0', volumn)
+            self.logWriter.write('int', '0', volumn)
+            # print('int', '0', volumn)
 
 
 
