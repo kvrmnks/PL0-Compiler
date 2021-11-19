@@ -271,7 +271,7 @@ class Syntax:
             else:
                 self.logWriter.write('LOD', ret[0] - self.inter_rep.current_procedure.level, ret[1][1])
                 self.logWriter.write('OPR', 0, 14)
-            self.props_stack = self.props_stack[:-2]
+            self.props_stack = self.props_stack[:-3]
 
         elif cmd == 'WRITE_BEGIN -> WRITE_BEGIN , ID':
             print('WRITE_BEGIN -> WRITE_BEGIN , ID')
@@ -288,11 +288,20 @@ class Syntax:
             self.props_stack = self.props_stack[:-2]
 
     def process_cond_related(self, cmd: str):
-        if cmd == 'COND -> if CONDDITION then STATEMENT':
-            print('COND -> if CONDDITION then STATEMENT')
-            
-        elif cmd == 'CONDDITION -> EXPR REL EXPR':
-            print('CONDDITION -> EXPR REL EXPR')
+        if cmd == 'COND -> if CONDITION then M_COND STATEMENT':
+            print('COND -> if CONDITION then M_COND STATEMENT')
+            ret = self.props_stack[-1]
+            print('abab', ret)
+            self.logWriter.cmd_arr[ret.number-1].num = self.logWriter.total_line
+            # self.logWriter.write('last -1 is', self.logWriter.total_line)
+            self.props_stack = self.props_stack[:-4]
+        elif cmd == 'M_COND -> ^':
+            print('M_COND -> ^')
+            self.logWriter.write('JPC', 0, self.logWriter.total_line + 2)
+            self.logWriter.write('JMP', 0, -1)
+            self.props_stack.append(Token(TokenType.NUMBER, 'jmp', self.logWriter.total_line))
+        elif cmd == 'CONDITION -> EXPR REL EXPR':
+            print('CONDITION -> EXPR REL EXPR')
             if self.props_stack[-2].token_type == TokenType.EQUAL:
                 self.logWriter.write('OPR', 0, 8)
             elif self.props_stack[-2].token_type == TokenType.NEQUAL:
@@ -307,11 +316,10 @@ class Syntax:
                 self.logWriter.write('OPR', 0, 11)
             self.props_stack = self.props_stack[:-2]
 
-        elif cmd == 'CONDDITION -> odd EXPR':
-            print('CONDDITION -> odd EXPR')
+        elif cmd == 'CONDITION -> odd EXPR':
+            print('CONDITION -> odd EXPR')
             self.logWriter.write('OPR', 0, 6)
             self.props_stack = self.props_stack[:-1]
-
 
     def process_inter_rep(self, cmd: str):
         print(cmd, self.props_stack)
@@ -371,9 +379,10 @@ class Syntax:
                      'WRITE_BEGIN -> WRITE_BEGIN , ID']:
             self.process_write_related(cmd)
 
-        elif cmd in ['COND -> if CONDDITION then STATEMENT',
-                     'CONDDITION -> EXPR REL EXPR',
-                     'CONDDITION -> odd EXPR']:
+        elif cmd in ['COND -> if CONDITION then M_COND STATEMENT',
+                     'M_COND -> ^',
+                     'CONDITION -> EXPR REL EXPR',
+                     'CONDITION -> odd EXPR']:
             self.process_cond_related(cmd)
 
         elif cmd == 'SUBPROG -> CONST VARIABLE PROCEDURE M_STATEMENT STATEMENT':
@@ -386,7 +395,7 @@ class Syntax:
             print('M_STATEMENT -> ^')
             volumn = 3 + len(self.inter_rep.current_procedure.var_dict)
             self.inter_rep.current_procedure.address = self.logWriter.total_line
-            self.logWriter.write('int', '0', volumn)
+            self.logWriter.write('int', 0, volumn)
 
     def process_one_hop(self, param: str, tk: Token):
         # print(self.parsing_table[self.state_stack[-1]])
@@ -440,4 +449,5 @@ class Syntax:
 if __name__ == '__main__':
     s = Syntax("../PL0_code/PL0_code0.in", open("./grammar.g").read())
     s.process()
+    s.logWriter.flush()
     print(s.inter_rep)

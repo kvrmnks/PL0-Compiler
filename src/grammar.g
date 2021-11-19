@@ -39,10 +39,10 @@ COMP -> COMP_BEGIN end  @down remain 0
 COMP_BEGIN -> begin STATEMENT @ down remain 0
 COMP_BEGIN -> COMP_BEGIN ; STATEMENT @ down remain 0
 
-COND -> if CONDDITION then STATEMENT
-
-CONDDITION -> EXPR REL  EXPR @ down remain 1
-CONDDITION -> addodd EXPR @ down remain 1
+COND -> if CONDITION then M_COND STATEMENT @down remain 0
+M_COND -> ^ @ down append 1
+CONDITION -> EXPR REL EXPR @ down remain 1
+CONDITION -> odd EXPR @ down remain 1
 
 EXPR -> PLUS_MINUS ITEM @ down remain 1
 EXPR -> EXPR PLUS_MINUS ITEM @down remain 1
@@ -68,12 +68,12 @@ REL -> >= @ down auto remain 1
 
 CALL -> call ID @ down remain 0
 
-WHILE -> while CONDDITION do STATEMENT
+WHILE -> while CONDITION do STATEMENT
 
 READ -> READ_BEGIN ) @ down remain 0
 READ_BEGIN -> read ( ID @ down remain 0
 READ_BEGIN -> READ_BEGIN , ID @ down remain 0
 
-WRITE -> WRITE_BEGIN )
-WRITE_BEGIN -> write ( ID
-WRITE_BEGIN -> WRITE_BEGIN , ID
+WRITE -> WRITE_BEGIN ) @down remain 0
+WRITE_BEGIN -> write ( ID @down remain 0
+WRITE_BEGIN -> WRITE_BEGIN , ID @down remain 0
