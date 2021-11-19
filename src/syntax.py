@@ -10,7 +10,7 @@ class Syntax:
     def __init__(self, code_path: str, grammar: str):
 
         self.inter_rep = InterRep()  # 用于生成中间代码
-        self.inter_rep.add_procedure("_global")
+        self.inter_rep.add_procedure("_global", 0)
 
         self.lexer = Lexer(code_path, "")
         self.grammar = Grammar(grammar)
@@ -42,7 +42,7 @@ class Syntax:
         if cmd == "PROC_HEAD procedureID;":
             print("PROC_HEAD -> procedure ID")
             self.check_props_stack([TokenType.PROCEDURE, TokenType.IDENTIFIER, TokenType.SEMICOLON])
-            self.inter_rep.add_procedure(self.props_stack[-2].identifier)
+            self.inter_rep.add_procedure(self.props_stack[-2].identifier, self.inter_rep.current_procedure.level + 1)
             self.props_stack = self.props_stack[: -3]
 
         elif cmd == 'CONST_DEF ID=UINT':

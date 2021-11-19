@@ -1,10 +1,13 @@
 class Procedure:
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, level: int):
         self.father = ""
         self.name = name
         self.const_dict = dict()
         self.var_dict = dict()
+        self.var_offset_counter = 0
+        self.level = level
+        self.address = -1
         # print("what?")
 
     def add_cost(self, name: str, value: int):
@@ -18,7 +21,8 @@ class Procedure:
         if name in self.var_dict:
             print("Error: redefinition in procedure " + self.name + ' of var ' + name)
             exit(-1)
-        self.var_dict[name] = 0
+        self.var_dict[name] = (0, self.var_offset_counter)
+        self.var_offset_counter += 1
         print(self.var_dict)
 
     def __str__(self):
@@ -26,7 +30,8 @@ class Procedure:
             'father': self.father,
             'name': self.name,
             'const_dict': self.const_dict,
-            'var_dict': self.var_dict
+            'var_dict': self.var_dict,
+            'level': self.level
         }))
 
     def __repr__(self):
@@ -36,11 +41,11 @@ class Procedure:
 class InterRep:
     def __init__(self):
         self.procedure_dict = dict()
-        self.current_procedure = Procedure("")
+        self.current_procedure = Procedure("", 0)
 
-    def add_procedure(self, procedure_name: str):
+    def add_procedure(self, procedure_name: str, level: int):
         f = self.current_procedure.name
-        self.procedure_dict[procedure_name] = Procedure(procedure_name)
+        self.procedure_dict[procedure_name] = Procedure(procedure_name, level)
         self.current_procedure = self.procedure_dict[procedure_name]
         self.current_procedure.father = f
 
