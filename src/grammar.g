@@ -1,22 +1,30 @@
 PROG -> SUBPROG
+
 SUBPROG -> CONST VARIABLE PROCEDURE M_STATEMENT STATEMENT
+
 M_STATEMENT -> ^ @ down
-CONST -> CONST_ ;
-CONST -> ^
-CONST_ -> const CONST_DEF
-CONST_ -> CONST_ , CONST_DEF
-CONST_DEF -> ID = UINT @ down
-UINT -> num @ down auto
-VARIABLE -> VARIABLE_ ;
-VARIABLE -> ^
-VARIABLE_ -> var ID @ down
-VARIABLE_ -> VARIABLE_ , ID @ down
-ID -> id @ down auto
-PROCEDURE -> PROCEDURE_
-PROCEDURE -> ^
-PROCEDURE_ -> PROCEDURE_ PROC_HEAD SUBPROG ;
-PROCEDURE_ -> PROC_HEAD SUBPROG ;
-PROC_HEAD -> procedure ID ; @ down
+
+CONST -> CONST_ ; @ down remain 0
+CONST -> ^ @ down remain 0
+CONST_ -> const CONST_DEF @ done remain 1
+CONST_ -> CONST_ , CONST_DEF @ done remain 1
+CONST_DEF -> ID = UINT @ down remain 1
+
+UINT -> num @ down auto remain 1
+
+VARIABLE -> VARIABLE_ ; @ down remain 0
+VARIABLE -> ^ @ down remain 0
+VARIABLE_ -> var ID @ down remain 1
+VARIABLE_ -> VARIABLE_ , ID @ down remain 1
+
+ID -> id @ down auto remain 1
+
+PROCEDURE -> PROCEDURE_ @ down remain 0
+PROCEDURE -> ^ @ down remain 0
+PROCEDURE_ -> PROCEDURE_ PROC_HEAD SUBPROG ; @ down remain 0
+PROCEDURE_ -> PROC_HEAD SUBPROG ; @ down remain 0      assume subproc remain 0
+PROC_HEAD -> procedure ID ; @ down remain 0
+
 STATEMENT -> ASSIGN
 STATEMENT -> COND
 STATEMENT -> WHILE
@@ -24,36 +32,47 @@ STATEMENT -> CALL
 STATEMENT -> READ
 STATEMENT -> WRITE
 STATEMENT -> COMP
-ASSIGN -> ID := EXPR @ down
-COMP -> COMP_BEGIN end
-COMP_BEGIN -> begin STATEMENT
-COMP_BEGIN -> COMP_BEGIN ; STATEMENT
+
+ASSIGN -> ID := EXPR @ down remain 0
+
+COMP -> COMP_BEGIN end  @down remain 0
+COMP_BEGIN -> begin STATEMENT @ down remain 0
+COMP_BEGIN -> COMP_BEGIN ; STATEMENT @ down remain 0
+
+COND -> if CONDDITION then STATEMENT
 CONDDITION -> EXPR REL EXPR
 CONDDITION -> odd EXPR
-EXPR -> PLUS_MINUS ITEM @ down
-EXPR -> EXPR PLUS_MINUS ITEM @down
-EXPR -> ITEM @ down auto
-ITEM -> FACTOR @ down auto
-ITEM -> ITEM MUL_DIV FACTOR @down
-FACTOR -> ID @ down
-FACTOR -> UINT @ down auto
-FACTOR -> ( EXPR ) @down
-PLUS_MINUS -> + @ down auto
-PLUS_MINUS -> - @ down auto
-MUL_DIV -> * @ down auto
-MUL_DIV -> / @ down auto
-REL -> = @ down auto
-REL -> # @ down auto
-REL -> < @ down auto
-REL -> <= @ down auto
-REL -> > @ down auto
-REL -> >= @ down auto
-COND -> if CONDDITION then STATEMENT
-CALL -> call ID @ down
+
+EXPR -> PLUS_MINUS ITEM @ down remain 1
+EXPR -> EXPR PLUS_MINUS ITEM @down remain 1
+EXPR -> ITEM @ down auto remain 1
+
+ITEM -> FACTOR @ down auto remain 1
+ITEM -> ITEM MUL_DIV FACTOR @down remain 1
+
+FACTOR -> ID @ down remain 1
+FACTOR -> UINT @ down auto remain 1
+FACTOR -> ( EXPR ) @down remain 1
+
+PLUS_MINUS -> + @ down auto remain 1
+PLUS_MINUS -> - @ down auto remain 1
+MUL_DIV -> * @ down auto remain 1
+MUL_DIV -> / @ down auto remain 1
+REL -> = @ down auto remain 1
+REL -> # @ down auto remain 1
+REL -> < @ down auto remain 1
+REL -> <= @ down auto remain 1
+REL -> > @ down auto remain 1
+REL -> >= @ down auto remain 1
+
+CALL -> call ID @ down remain 0
+
 WHILE -> while CONDDITION do STATEMENT
-READ -> READ_BEGIN )
-READ_BEGIN -> read ( ID
-READ_BEGIN -> READ_BEGIN , ID
+
+READ -> READ_BEGIN ) @ down remain 0
+READ_BEGIN -> read ( ID @ down remain 0
+READ_BEGIN -> READ_BEGIN , ID @ down remain 0
+
 WRITE -> WRITE_BEGIN )
 WRITE_BEGIN -> write ( ID
 WRITE_BEGIN -> WRITE_BEGIN , ID
