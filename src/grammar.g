@@ -6,12 +6,12 @@ CONST -> ^
 CONST_ -> const CONST_DEF
 CONST_ -> CONST_ , CONST_DEF
 CONST_DEF -> ID = UINT @ down
-UINT -> num
+UINT -> num @ down auto
 VARIABLE -> VARIABLE_ ;
 VARIABLE -> ^
 VARIABLE_ -> var ID @ down
 VARIABLE_ -> VARIABLE_ , ID @ down
-ID -> id
+ID -> id @ down auto
 PROCEDURE -> PROCEDURE_
 PROCEDURE -> ^
 PROCEDURE_ -> PROCEDURE_ PROC_HEAD SUBPROG ;
@@ -24,32 +24,32 @@ STATEMENT -> CALL
 STATEMENT -> READ
 STATEMENT -> WRITE
 STATEMENT -> COMP
-ASSIGN -> ID := EXPR
+ASSIGN -> ID := EXPR @ down
 COMP -> COMP_BEGIN end
 COMP_BEGIN -> begin STATEMENT
 COMP_BEGIN -> COMP_BEGIN ; STATEMENT
 CONDDITION -> EXPR REL EXPR
 CONDDITION -> odd EXPR
-EXPR -> PLUS_MINUS ITEM
-EXPR -> EXPR PLUS_MINUS ITEM
-EXPR -> ITEM
+EXPR -> PLUS_MINUS ITEM @ down
+EXPR -> EXPR PLUS_MINUS ITEM @down
+EXPR -> ITEM @ down auto
 ITEM -> FACTOR @ down auto
-ITEM -> ITEM MUL_DIV FACTOR
+ITEM -> ITEM MUL_DIV FACTOR @down
 FACTOR -> ID @ down
 FACTOR -> UINT @ down auto
 FACTOR -> ( EXPR ) @down
-PLUS_MINUS -> +
-PLUS_MINUS -> -
-MUL_DIV -> *
-MUL_DIV -> /
-REL -> =
-REL -> #
-REL -> <
-REL -> <=
-REL -> >
-REL -> >=
+PLUS_MINUS -> + @ down auto
+PLUS_MINUS -> - @ down auto
+MUL_DIV -> * @ down auto
+MUL_DIV -> / @ down auto
+REL -> = @ down auto
+REL -> # @ down auto
+REL -> < @ down auto
+REL -> <= @ down auto
+REL -> > @ down auto
+REL -> >= @ down auto
 COND -> if CONDDITION then STATEMENT
-CALL -> call ID
+CALL -> call ID @ down
 WHILE -> while CONDDITION do STATEMENT
 READ -> READ_BEGIN )
 READ_BEGIN -> read ( ID

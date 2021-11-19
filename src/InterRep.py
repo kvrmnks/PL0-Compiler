@@ -5,7 +5,7 @@ class Procedure:
         self.name = name
         self.const_dict = dict()
         self.var_dict = dict()
-        self.var_offset_counter = 0
+        self.var_offset_counter = 3
         self.level = level
         self.address = -1
         # print("what?")
