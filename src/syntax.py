@@ -91,7 +91,7 @@ class Syntax:
 
         elif cmd == 'PROCEDURE_ -> PROCEDURE_ PROC_HEAD SUBPROG ;':
             print('PROCEDURE_ -> PROCEDURE_ PROC_HEAD SUBPROG ;')
-            self.props_stack = self.props_stack[-1]
+            self.props_stack = self.props_stack[:-1]
 
         elif cmd == 'PROCEDURE_ -> PROC_HEAD SUBPROG ;':
             print('PROCEDURE_ -> PROC_HEAD SUBPROG ;')
@@ -291,7 +291,7 @@ class Syntax:
         if cmd == 'COND -> if CONDITION then M_COND STATEMENT':
             print('COND -> if CONDITION then M_COND STATEMENT')
             ret = self.props_stack[-1]
-            print('abab', ret)
+            # print('abab', ret)
             self.logWriter.cmd_arr[ret.number-1].num = self.logWriter.total_line
             # self.logWriter.write('last -1 is', self.logWriter.total_line)
             self.props_stack = self.props_stack[:-4]
@@ -320,6 +320,25 @@ class Syntax:
             print('CONDITION -> odd EXPR')
             self.logWriter.write('OPR', 0, 6)
             self.props_stack = self.props_stack[:-1]
+
+    def process_while_related(self, cmd: str):
+        if cmd == 'WHILE -> while M_WHILE_FORE CONDITION do M_WHILE_TAIL STATEMENT':
+            print('WHILE -> while M_WHILE_FORE CONDITION do M_WHILE_TAIL STATEMENT')
+            self.logWriter.write('JMP', 0, self.props_stack[-4].number)
+            self.logWriter.cmd_arr[self.props_stack[-1].number - 1].num = self.logWriter.total_line
+            self.props_stack = self.props_stack[:-5]
+
+        elif cmd == 'M_WHILE_FORE -> ^':
+            print('M_WHILE_FORE -> ^')
+            self.props_stack.append(Token(TokenType.NUMBER, 'while_head', self.logWriter.total_line))
+
+        elif cmd == 'M_WHILE_TAIL -> ^':
+            print('M_WHILE_TAIL -> ^')
+            self.logWriter.write('JPC', 0, self.logWriter.total_line + 2)
+            self.logWriter.write('JMP', 0, -1)
+            self.props_stack.append(Token(TokenType.NUMBER, 'while_tail jmp', self.logWriter.total_line))
+
+        # self.props_stack.append(Token(TokenType.NUMBER, 'while', self.logWriter.total_line-1))
 
     def process_inter_rep(self, cmd: str):
         print(cmd, self.props_stack)
@@ -385,6 +404,11 @@ class Syntax:
                      'CONDITION -> odd EXPR']:
             self.process_cond_related(cmd)
 
+        elif cmd in ['WHILE -> while M_WHILE_FORE CONDITION do M_WHILE_TAIL STATEMENT',
+                     'M_WHILE_FORE -> ^',
+                     'M_WHILE_TAIL -> ^']:
+            self.process_while_related(cmd)
+
         elif cmd == 'SUBPROG -> CONST VARIABLE PROCEDURE M_STATEMENT STATEMENT':
             print('SUBPROG -> CONST VARIABLE PROCEDURE M_STATEMENT STATEMENT')
             if self.inter_rep.current_procedure.father != "":
@@ -431,6 +455,7 @@ class Syntax:
             # self.props_stack.append(tk)
 
     def process(self):
+        self.logWriter.write('JMP', 0, -1)
         while self.lexer.has_next():
             t = self.lexer.get_next()
             if t.token_type is None:
@@ -439,7 +464,7 @@ class Syntax:
             self.process_one_hop(t.token_type.value, t)
 
             # cmd = parsing_table[state_stack[-1]][t.token_type.value]
-
+        self.logWriter.cmd_arr[0].num = self.inter_rep.procedure_dict['_global'].address
     def iprocess(self):
         while True:
             t = input()
@@ -447,7 +472,7 @@ class Syntax:
 
 
 if __name__ == '__main__':
-    s = Syntax("../PL0_code/PL0_code0.in", open("./grammar.g").read())
+    s = Syntax("../PL0_code/PL0_code2.in", open("./grammar.g").read())
     s.process()
     s.logWriter.flush()
     print(s.inter_rep)

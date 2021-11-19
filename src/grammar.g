@@ -68,7 +68,9 @@ REL -> >= @ down auto remain 1
 
 CALL -> call ID @ down remain 0
 
-WHILE -> while CONDITION do STATEMENT
+WHILE -> while M_WHILE_FORE CONDITION do M_WHILE_TAIL STATEMENT @down remain 0
+M_WHILE_FORE -> ^ @ down append 1
+M_WHILE_TAIL -> ^ @ down append 1
 
 READ -> READ_BEGIN ) @ down remain 0
 READ_BEGIN -> read ( ID @ down remain 0
