@@ -29,6 +29,17 @@ class Syntax:
         #     print(x, self.parser.parse_table[x])
 
     # def subprocess_add_procedure
+    def print_symbol_table(self):
+        for x in self.inter_rep.procedure_dict.keys():
+            p = self.inter_rep.procedure_dict[x]
+            for y in p.const_dict.keys():
+                print('NAME: {}\tKIND: CONSTANT\tVAL: {}\t'.format(y, p.const_dict[y]))
+            for y in p.var_dict.keys():
+                print('NAME: {}\tKIND: VARIABLE\tLEVEL: {}\tADR: {}'.format(y, p.level, p.var_dict[y][1]))
+            chi = [self.inter_rep.procedure_dict[x] for x in self.inter_rep.procedure_dict.keys() if self.inter_rep.procedure_dict[x].father == p.name]
+            for y in chi:
+                print('NAME: {}\tKIND: PROCEDURE\tLEVEL: {}\tADR: {}'.format(y.name, y.level, y.address))
+            # print(chi)
     def check_props_stack(self, token_types: list) -> bool:
         if len(self.props_stack) < len(token_types):
             print('panic in check props_stack')
@@ -478,4 +489,6 @@ if __name__ == '__main__':
     s = Syntax("../PL0_code/PL0_code3.in", open("./grammar.g").read())
     s.process()
     s.logWriter.flush()
-    print(s.inter_rep)
+    print("")
+    s.print_symbol_table()
+    # print(s.inter_rep)

@@ -40,7 +40,7 @@ class Procedure:
 
 class InterRep:
     def __init__(self):
-        self.procedure_dict = dict()
+        self.procedure_dict = dict()  # type: {str: Procedure}
         self.current_procedure = Procedure("", 0)
 
     def add_procedure(self, procedure_name: str, level: int):
