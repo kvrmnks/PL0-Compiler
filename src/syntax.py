@@ -20,9 +20,9 @@ class Syntax:
         # self.parser = SLRParser(self.grammar)
         # print(self.parser.G_indexed)
         self.parsing_table = self.parser.parse_table
-        self.state_stack = [0]
-        self.readable_stack = []
-        self.props_stack = []  # 存放各种属性
+        self.state_stack = [0]  # type: list[int]
+        self.readable_stack = []  # type: list[str]
+        self.props_stack = []  # type: list[Token] # 存放各种属性
         # self.inter_rep
         # print(self.parser.parse_table)
         # for x in self.parser.parse_table.keys():
@@ -292,7 +292,7 @@ class Syntax:
             print('COND -> if CONDITION then M_COND STATEMENT')
             ret = self.props_stack[-1]
             # print('abab', ret)
-            self.logWriter.cmd_arr[ret.number-1].num = self.logWriter.total_line
+            self.logWriter.cmd_arr[ret.number - 1].num = self.logWriter.total_line
             # self.logWriter.write('last -1 is', self.logWriter.total_line)
             self.props_stack = self.props_stack[:-4]
         elif cmd == 'M_COND -> ^':
@@ -467,6 +467,7 @@ class Syntax:
 
             # cmd = parsing_table[state_stack[-1]][t.token_type.value]
         self.logWriter.cmd_arr[0].num = self.inter_rep.procedure_dict['_global'].address
+
     def iprocess(self):
         while True:
             t = input()
