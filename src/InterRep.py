@@ -56,7 +56,7 @@ class InterRep:
         self.current_procedure.add_var(name)
 
     # 按照父亲边寻找变量 or 常量 变量后一位为1 否则为0
-    # level (值, offset) 变量/常量
+    # level差 (值, offset) 变量/常量
     def find_by_name(self, name: str) -> (int, (int, int), int):
         tmp_state = self.current_procedure
         while True:

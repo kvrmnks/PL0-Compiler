@@ -266,10 +266,10 @@ class Syntax:
                 print('找不到对应标识符')
                 exit(-1)
             if ret[2] == 0:
-                self.logWriter.write('LIT', ret[0] - self.inter_rep.current_procedure.level, ret[1])
+                self.logWriter.write('LIT', ret[0], ret[1])
                 self.logWriter.write('OPR', 0, 14)
             else:
-                self.logWriter.write('LOD', ret[0] - self.inter_rep.current_procedure.level, ret[1][1])
+                self.logWriter.write('LOD', ret[0], ret[1][1])
                 self.logWriter.write('OPR', 0, 14)
             self.props_stack = self.props_stack[:-3]
 
@@ -280,10 +280,10 @@ class Syntax:
                 print('找不到对应标识符')
                 exit(-1)
             if ret[2] == 0:
-                self.logWriter.write('LIT', ret[0] - self.inter_rep.current_procedure.level, ret[1])
+                self.logWriter.write('LIT', ret[0], ret[1])
                 self.logWriter.write('OPR', 0, 14)
             else:
-                self.logWriter.write('LOD', ret[0] - self.inter_rep.current_procedure.level, ret[1][1])
+                self.logWriter.write('LOD', ret[0], ret[1][1])
                 self.logWriter.write('OPR', 0, 14)
             self.props_stack = self.props_stack[:-2]
 
@@ -475,7 +475,7 @@ class Syntax:
 
 
 if __name__ == '__main__':
-    s = Syntax("../PL0_code/test4.pas", open("./grammar.g").read())
+    s = Syntax("../PL0_code/PL0_code3.in", open("./grammar.g").read())
     s.process()
     s.logWriter.flush()
     print(s.inter_rep)
