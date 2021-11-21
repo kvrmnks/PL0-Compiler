@@ -181,8 +181,10 @@ class Simulator:
             # print(self.stack, self.program_pointer)
 
 
+obj_file_path = 'abab.txt'
+
 if __name__ == '__main__':
-    codes = list(filter(lambda x: x != "", open('abab.txt').read().split('\n')))
+    codes = list(filter(lambda x: x != "", open(obj_file_path).read().split('\n')))
     s = Simulator(codes)
-    # s.debug_mode()
     s.release_mode()
+    # s.debug_mode()

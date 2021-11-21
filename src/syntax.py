@@ -8,16 +8,20 @@ from LogWriter import LogWriter
 
 
 class Syntax:
-    def __init__(self, code_path: str, grammar: str):
+    def __init__(self, code_path: str, inter_path: str, grammar: str, parser_set='LR1'):
 
         self.inter_rep = InterRep()  # 用于生成中间代码
         self.inter_rep.add_procedure("_global", 0)
-        self.logWriter = LogWriter('abab.txt')
+        self.logWriter = LogWriter(inter_path)
         self.lexer = Lexer(code_path, "")
         self.grammar = Grammar(grammar)
-        self.parser = LR1Parser(self.grammar)
+        # self.parser = LR1Parser(self.grammar)
         self.global_address_counter = 0  # 记录生成的地址
         # self.parser = SLRParser(self.grammar)
+        if parser_set == 'LR1':
+            self.parser = LR1Parser(self.grammar)
+        else:
+            self.parser = SLRParser(self.grammar)
         # print(self.parser.G_indexed)
         self.parsing_table = self.parser.parse_table
         self.state_stack = [0]  # type: list[int]
@@ -36,10 +40,12 @@ class Syntax:
                 print('NAME: {}\tKIND: CONSTANT\tVAL: {}\t'.format(y, p.const_dict[y]))
             for y in p.var_dict.keys():
                 print('NAME: {}\tKIND: VARIABLE\tLEVEL: {}\tADR: {}'.format(y, p.level, p.var_dict[y][1]))
-            chi = [self.inter_rep.procedure_dict[x] for x in self.inter_rep.procedure_dict.keys() if self.inter_rep.procedure_dict[x].father == p.name]
+            chi = [self.inter_rep.procedure_dict[x] for x in self.inter_rep.procedure_dict.keys() if
+                   self.inter_rep.procedure_dict[x].father == p.name]
             for y in chi:
                 print('NAME: {}\tKIND: PROCEDURE\tLEVEL: {}\tADR: {}'.format(y.name, y.level, y.address))
             # print(chi)
+
     def check_props_stack(self, token_types: list) -> bool:
         if len(self.props_stack) < len(token_types):
             print('panic in check props_stack')
@@ -486,7 +492,7 @@ class Syntax:
 
 
 if __name__ == '__main__':
-    s = Syntax("../PL0_code/PL0_code3.in", open("./grammar.g").read())
+    s = Syntax("../PL0_code/PL0_code3.in", 'abab.txt', open("./grammar.g").read())
     s.process()
     s.logWriter.flush()
     print("")
